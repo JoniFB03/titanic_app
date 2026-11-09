@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}The Telegraphist{% endblock %}
+{% block description %}Wire Harold, the 1912 Marconi operator. Every figure comes from the passenger manifest via pandas.{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/telegraphist.css">{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <p class="kicker">Marconi Wireless Room · Call sign MGY · Boat Deck</p>
+  <h1>The Telegraphist</h1>
+  <svg class="ornament" viewBox="0 0 320 18" aria-hidden="true"><path d="M0 9 H120 M200 9 H320 M140 9 c6-8 14-8 20 0 c6 8 14 8 20 0" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="160" cy="9" r="3" fill="currentColor"/></svg>
+  <p class="sub">Harold is theatrical. His numbers are not: each one is pulled from the manifest by a pandas expression you can read on the tape.</p>
+</header>
+
+<section class="wireless">
+  <aside class="apparatus glass" aria-label="Wireless apparatus">
+    <svg class="key" viewBox="0 0 220 120" aria-hidden="true">
+      <defs>
+        <linearGradient id="wood" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#7a4a22"/><stop offset="1" stop-color="#3e2310"/></linearGradient>
+        <linearGradient id="brass" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".5" stop-color="#c99a3c"/><stop offset="1" stop-color="#6b4513"/></linearGradient>
+      </defs>
+      <rect x="10" y="88" width="200" height="24" rx="5" fill="url(#wood)"/>
+      <rect x="40" y="80" width="26" height="10" rx="2" fill="url(#brass)"/>
+      <rect x="150" y="78" width="16" height="12" rx="2" fill="url(#brass)"/>
+      <g class="lever">
+        <rect x="30" y="58" width="170" height="9" rx="4" fill="url(#brass)"/>
+        <circle cx="186" cy="54" r="15" fill="#1b1b1b" stroke="#c99a3c" stroke-width="3"/>
+        <circle cx="181" cy="49" r="4" fill="#555"/>
+      </g>
+      <circle class="spark" cx="158" cy="74" r="5" fill="#bfe6ff"/>
+    </svg>
+    <div class="lamp" data-state="checking">
+      <span class="bulb" aria-hidden="true"></span>
+      <span class="lamp-text" role="status">Testing the line…</span>
+    </div>
+    <p class="apparatus-note">Operator: <strong>Harold</strong> · Engine: <code>{{ llm }}</code> via Ollama · Tool: <code>query_data(code)</code>, read-only pandas on <code>df</code>.</p>
+    <button class="btn ghost new-roll" type="button">✂ New roll of paper</button>
+  </aside>
+
+  <div class="desk glass">
+    <ol class="log" aria-live="polite" aria-label="Telegrams"></ol>
+
+    <div class="suggestions" aria-label="Suggested questions">
+      {% for s in suggestions %}
+      <button class="btn ghost suggestion" type="button">{{ s }}</button>
+      {% endfor %}
+    </div>
+
+    <form class="compose" autocomplete="off">
+      <label for="message" class="sr-only">Your telegram to the Titanic</label>
+      <div class="form-strip">
+        <span class="form-label" aria-hidden="true">TO: MGY TITANIC</span>
+        <textarea id="message" name="message" rows="2" maxlength="1000" required placeholder="Write your telegram… e.g. How many children survived in third class?"></textarea>
+      </div>
+      <button class="btn send" type="submit"><span aria-hidden="true">⚡</span> Send</button>
+    </form>
+  </div>
+</section>
+
+<template id="tpl-incoming">
+  <li class="telegram incoming">
+    <header class="slip-head">
+      <span class="company">Marconi International Marine Communication Co. Ltd</span>
+      <span class="stamp"></span>
+    </header>
+    <div class="tapes"></div>
+    <p class="slip-body"></p>
+  </li>
+</template>
+<template id="tpl-outgoing">
+  <li class="telegram outgoing">
+    <header class="slip-head"><span class="company">Passenger's telegram · To MGY</span><span class="stamp"></span></header>
+    <p class="slip-body"></p>
+  </li>
+</template>
+<template id="tpl-tape">
+  <figure class="tape">
+    <figcaption class="sr-only">Pandas code that ran</figcaption>
+    <pre class="tape-code"><code></code></pre>
+    <pre class="tape-result"></pre>
+  </figure>
+</template>
+{% endblock %}
+
+{% block scripts %}<script src="/static/js/telegraphist.js"></script>{% endblock %}

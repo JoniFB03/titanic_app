@@ -1,0 +1,290 @@
+/* ===================== THE BRIDGE ===================== */
+
+main { padding: 0 16px 6rem; }
+main > section { width: min(1180px, 100%); margin: 0 auto 2.4rem; }
+.section-head { display: grid; gap: .2rem; margin-bottom: 1.2rem; }
+.section-head h2 { font-size: clamp(1.5rem, 3.6vw, 2.2rem); color: var(--brass-hi); margin: 0; }
+.note { color: var(--muted); font-size: .98rem; margin: 0; }
+.note strong { color: var(--text); font-weight: 600; }
+.mono { font-family: var(--font-mono); font-size: .85em; }
+
+/* ---------------------------------------------------------------- regatta */
+.regatta { overflow: hidden; }
+.course { position: relative; padding: 1.6rem 0 .4rem; }
+.axis { position: absolute; left: var(--label-w); right: 0; top: 0; height: 100%; pointer-events: none; }
+.axis .tick { position: absolute; top: 0; bottom: 0; border-left: 1px dashed rgba(243, 217, 142, .16); }
+.axis .tick span { position: absolute; top: 0; translate: -50% 0; font-family: var(--font-mono); font-size: .72rem; color: var(--muted); white-space: nowrap; }
+.course { --label-w: 190px; }
+.lanes { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.lane { display: grid; grid-template-columns: var(--label-w) 1fr; align-items: center; min-height: 74px; }
+.lane-label { display: grid; line-height: 1.15; padding-right: .8rem; }
+.ship-name { font-family: var(--font-nouveau); letter-spacing: .08em; color: var(--brass-hi); text-transform: uppercase; font-size: .9rem; }
+.model-name { font-size: 1.05rem; }
+.water {
+  position: relative;
+  height: 74px;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(170, 210, 255, .06) 34px 36px),
+    linear-gradient(180deg, rgba(18, 50, 87, .35), rgba(6, 20, 40, .7));
+  border-bottom: 2px solid rgba(170, 210, 255, .18);
+  overflow: visible;
+}
+.boat {
+  --pos: 0;
+  --boat-w: clamp(84px, 12vw, 130px);
+  position: absolute;
+  bottom: 4px;
+  left: calc(var(--pos) * (100% - var(--boat-w)));
+  width: var(--boat-w);
+  transition: left 3.4s cubic-bezier(.3, .05, .2, 1);
+  transition-delay: calc(var(--i, 0) * 120ms);
+  outline-offset: 4px;
+}
+.lane { --i: 0; }
+.boat .ship { animation: bob 2.6s ease-in-out infinite; animation-delay: calc(var(--i) * -0.7s); }
+/* the wake behind each ship */
+.boat::before {
+  content: "";
+  position: absolute; right: 70%; bottom: 6px;
+  width: calc(var(--pos) * 70vw); max-width: 900px;
+  height: 6px;
+  background: linear-gradient(90deg, transparent, rgba(233, 246, 255, .55));
+  border-radius: 4px;
+  filter: blur(1px);
+  transition: width 3.4s cubic-bezier(.3, .05, .2, 1);
+}
+.acc {
+  position: absolute; left: 100%; bottom: 20px;
+  margin-left: .4rem;
+  font-family: var(--font-mono); font-size: .9rem; color: var(--text);
+  white-space: nowrap;
+  opacity: 0; transition: opacity .6s 3.2s;
+}
+.raced .acc { opacity: 1; }
+.lane:last-child .acc, .boat.late-label .acc { left: auto; right: 100%; margin: 0 .4rem 0 0; }
+.crown {
+  position: absolute; left: 50%; bottom: 100%;
+  width: 40px; translate: -50% -60px; opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(245, 197, 66, .8));
+  z-index: 2;
+}
+.lane.winner.crowned .crown { animation: crown-drop .9s var(--ease-spring) forwards; }
+@keyframes crown-drop { to { translate: -50% -2px; opacity: 1; } }
+.lane.winner.crowned .model-name::after { content: " 👑"; }
+.finish {
+  position: absolute; right: 0; top: 1.6rem; bottom: .4rem; width: 10px;
+  background: repeating-conic-gradient(#f4efe6 0 25%, #111 0 50%) 0 0 / 10px 10px;
+  opacity: .55; border-radius: 2px;
+}
+.fireworks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.logbook { margin-top: 1.2rem; }
+.logbook summary { cursor: pointer; font-family: var(--font-nouveau); letter-spacing: .08em; color: var(--brass-hi); min-height: 44px; display: flex; align-items: center; }
+.table-wrap { overflow-x: auto; margin: .6rem 0; }
+.logbook table { border-collapse: collapse; width: 100%; font-size: .95rem; min-width: 760px; }
+.logbook th, .logbook td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid rgba(243, 217, 142, .16); vertical-align: top; }
+.logbook thead th { font-family: var(--font-nouveau); font-weight: normal; letter-spacing: .08em; color: var(--muted); font-size: .8rem; text-transform: uppercase; }
+.winner-row { background: rgba(245, 197, 66, .08); }
+
+/* ---------------------------------------------------------------- the voyage: ticket + gauge */
+.voyage { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2.2rem); align-items: start; }
+
+.ticket {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  color: var(--ink);
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .55));
+  rotate: -.6deg;
+}
+.ticket-main, .ticket-stub {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, .5), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 80, 30, .05) 0 1px, transparent 1px 4px),
+    linear-gradient(160deg, #f8efd8, #ead8ae);
+}
+.ticket-main {
+  padding: 1.4rem 1.6rem 1.2rem;
+  border-radius: 12px 0 0 12px;
+  border: 1px solid #b69c62; border-right: 0;
+  position: relative;
+}
+.ticket-main::after { /* perforation */
+  content: ""; position: absolute; top: 8px; bottom: 8px; right: -1px; width: 2px;
+  background: radial-gradient(circle, #6b5530 1.2px, transparent 1.6px) 0 0 / 2px 9px repeat-y;
+}
+.ticket-stub {
+  display: grid; align-content: center; justify-items: center; gap: .6rem; text-align: center;
+  padding: 1rem .6rem;
+  border-radius: 0 12px 12px 0;
+  border: 1px solid #b69c62; border-left: 0;
+  -webkit-mask: radial-gradient(circle at 0 0, transparent 10px, #000 10.5px) top left / 100% 51% no-repeat,
+                radial-gradient(circle at 0 100%, transparent 10px, #000 10.5px) bottom left / 100% 51% no-repeat;
+          mask: radial-gradient(circle at 0 0, transparent 10px, #000 10.5px) top left / 100% 51% no-repeat,
+                radial-gradient(circle at 0 100%, transparent 10px, #000 10.5px) bottom left / 100% 51% no-repeat;
+}
+.stub-line { margin: 0; font-family: var(--font-nouveau); text-transform: uppercase; letter-spacing: .2em; font-size: .78rem; color: #6a2a14; }
+.stub-class { margin: 0; font-family: var(--font-display); font-size: 3.2rem; line-height: 1; color: #a3262a; }
+.stub-class sup { font-size: .35em; }
+.board { font-size: 1.15rem; padding: .8em 1.4em; }
+.small { font-size: .72rem !important; }
+
+.ticket-head { display: flex; gap: 1rem; align-items: center; border-bottom: 3px double #6b5530; padding-bottom: .7rem; margin-bottom: 1rem; }
+.burgee { width: 64px; flex: none; }
+.ticket-head .line { margin: 0; font-family: var(--font-nouveau); letter-spacing: .24em; text-transform: uppercase; color: #6a2a14; font-size: .8rem; }
+.ticket-head h2 { margin: 0; color: #1b1b1b; font-size: clamp(1.5rem, 3.4vw, 2.1rem); }
+
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem 1.2rem; }
+.field { display: grid; gap: .25rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field > span, .field legend { font-family: var(--font-nouveau); font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: #5a4a36; padding: 0; }
+.field small { color: #7a6a52; font-size: .8rem; }
+.auto-tag { text-transform: none; letter-spacing: 0; font-family: var(--font-serif); font-style: italic; }
+.field input[type="text"], .field input[type="number"], .field select {
+  min-height: 44px;
+  width: 100%;
+  border: 0; border-bottom: 2px solid #6b5530;
+  background: rgba(255, 255, 255, .35);
+  border-radius: 4px 4px 0 0;
+  padding: .3rem .5rem;
+  font-family: var(--font-mono); font-size: 1.05rem; color: var(--ink);
+}
+.field input:focus-visible, .field select:focus-visible { outline: 3px solid #1f4e9b; outline-offset: 1px; }
+.field input[type="range"] { width: 100%; accent-color: #a3262a; min-height: 32px; }
+.field output { font-family: var(--font-mono); font-size: 1rem; color: #a3262a; }
+
+.pills, .stamps { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pills label, .stamps label { position: relative; cursor: pointer; }
+.pills input, .stamps input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.pills span {
+  display: inline-flex; align-items: center; min-height: 40px; padding: .2rem .9rem;
+  border: 1.5px solid #6b5530; border-radius: 999px;
+  font-size: 1rem; background: rgba(255, 255, 255, .3);
+  transition: background .2s, color .2s, rotate .3s var(--ease-spring);
+}
+.pills input:checked + span { background: #1b1b1b; color: #f8efd8; rotate: -2deg; }
+.stamps span {
+  display: grid; justify-items: center; min-width: 92px; min-height: 64px; padding: .3rem .6rem;
+  border: 3px double #a3262a; border-radius: 8px;
+  color: #a3262a; font-family: var(--font-nouveau); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase;
+  opacity: .55; rotate: -3deg;
+  transition: opacity .2s, rotate .35s var(--ease-spring), scale .35s var(--ease-spring), background .2s;
+}
+.stamps b { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; }
+.stamps input:checked + span { opacity: 1; rotate: -8deg; scale: 1.06; background: rgba(163, 38, 42, .08); }
+.pills input:focus-visible + span, .stamps input:focus-visible + span { outline: 3px solid #1f4e9b; outline-offset: 2px; }
+.form-error { margin: .8rem 0 0; color: #a3262a; font-weight: 600; }
+
+/* ---------------------------------------------------------------- the brass gauge */
+.gauge-panel { text-align: center; position: sticky; top: 92px; }
+.gauge { width: 100%; max-width: 460px; margin: 0 auto; display: block; overflow: visible; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .5)); }
+.gauge .tick-label { font-family: var(--font-mono); font-size: 11px; fill: #3a2e20; }
+.dial-label { font-family: var(--font-nouveau); font-size: 9px; letter-spacing: 3px; fill: #5a4a36; }
+.dial-maker { font-family: var(--font-nouveau); font-size: 7px; letter-spacing: 2px; fill: #6b5530; }
+.needle-arm { transition: transform 2.2s cubic-bezier(.22, 1.4, .36, 1); }
+.needle { transform-origin: 0 0; }
+.needle.tremble { animation: tremble .18s linear infinite alternate; }
+@keyframes tremble { from { rotate: -2.2deg; } to { rotate: 2.2deg; } }
+.readout { margin: .2rem 0 0; font-family: var(--font-display); font-size: clamp(3rem, 9vw, 4.8rem); line-height: 1; color: var(--brass-hi); text-shadow: 0 0 24px rgba(243, 217, 142, .35); }
+.readout .unit { font-size: .45em; margin-left: .1em; }
+.verdict { font-family: var(--font-nouveau); letter-spacing: .14em; text-transform: uppercase; margin: .6rem 0 .2rem; min-height: 1.6em; }
+.verdict[data-v="sinking"] { color: #ff8a78; }
+.verdict[data-v="uncertain"] { color: #f5c542; }
+.verdict[data-v="saved"] { color: #7fe0a8; }
+.model-used { color: var(--muted); font-size: .92rem; margin: 0; }
+
+/* ---------------------------------------------------------------- chart */
+.scatter { width: 100%; height: clamp(380px, 58vh, 620px); border-radius: 10px; background: rgba(4, 12, 26, .55); position: relative; }
+.scatter:has(.placeholder) { height: 140px; }
+.placeholder { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted); font-style: italic; text-align: center; padding: 1rem; }
+.key-dot.survived { color: var(--survived); }
+.key-dot.perished { color: var(--perished); }
+.neighbors { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .8rem; }
+.neighbors li {
+  padding: .7rem .9rem;
+  border-radius: 10px;
+  background: rgba(8, 17, 34, .7);
+  border: 1px solid rgba(243, 217, 142, .3);
+  animation: slip-up .6s var(--ease-spring) both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+@keyframes slip-up { from { opacity: 0; translate: 0 14px; } }
+.neighbors .n-name { font-weight: 600; display: block; line-height: 1.25; }
+.neighbors .n-meta { color: var(--muted); font-size: .9rem; }
+.neighbors .fate { display: inline-block; margin-top: .3rem; font-family: var(--font-nouveau); letter-spacing: .1em; text-transform: uppercase; font-size: .78rem; }
+.neighbors .fate.s { color: var(--survived); }
+.neighbors .fate.p { color: var(--perished); }
+
+/* ---------------------------------------------------------------- the joke telegram */
+.telegram-pop {
+  position: fixed; right: 16px; bottom: 70px; z-index: 95;
+  width: min(380px, calc(100vw - 32px));
+  padding: .9rem 1.1rem 1rem;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f6edd6, #ecdcb5);
+  border-radius: 3px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
+  rotate: 1.5deg;
+  animation: pop-in .7s var(--ease-spring) both;
+}
+@keyframes pop-in { from { translate: 120% 0; rotate: 12deg; } }
+.telegram-pop header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px double rgba(42, 33, 24, .45); margin-bottom: .5rem; font-family: var(--font-nouveau); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #6a2a14; }
+.telegram-pop .close { border: 0; background: none; font-size: 1.6rem; line-height: 1; cursor: pointer; color: #6a2a14; min-width: 40px; min-height: 40px; }
+.pop-body { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 .6rem; line-height: 1.55; }
+.pop-body .stop { color: #a3262a; font-weight: bold; }
+.pop-link { color: #1f4e9b; font-weight: 600; }
+
+/* ---------------------------------------------------------------- < 30%: the ship lists and floods */
+.flood {
+  position: fixed; left: -5vw; right: -5vw; bottom: 0; z-index: 85;
+  height: 0;
+  background: linear-gradient(180deg, rgba(22, 74, 125, .9), rgba(6, 22, 48, .97));
+  pointer-events: none;
+  transition: height 2.6s cubic-bezier(.3, .1, .2, 1);
+}
+.flood svg { position: absolute; left: 0; bottom: 100%; width: 200%; height: 30px; animation: flood-wave 3s linear infinite; }
+@keyframes flood-wave { to { translate: -50% 0; } }
+html.flooding .flood { height: 42vh; }
+html.listing main { transition: rotate 2.4s cubic-bezier(.3, .1, .2, 1), translate 2.4s; rotate: -3.2deg; translate: 0 2vh; transform-origin: 50% 0; }
+main { transition: rotate 1.6s ease, translate 1.6s ease; }
+
+/* ---------------------------------------------------------------- > 70%: seagulls & confetti */
+.gulls { position: fixed; inset: 0; z-index: 86; pointer-events: none; overflow: hidden; }
+.gull { position: absolute; left: -80px; width: 54px; animation: fly var(--dur, 6s) linear forwards; }
+.gull svg { width: 100%; animation: flap .5s ease-in-out infinite alternate; transform-origin: 50% 60%; }
+@keyframes fly { to { translate: calc(100vw + 160px) var(--dy, -12vh); } }
+@keyframes flap { from { scale: 1 1; } to { scale: 1 .55; } }
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 87; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .needle-arm { transition: none; }
+  .needle.tremble { animation: none; }
+  html.listing main { rotate: 0deg; translate: 0 0; }
+  .flood { transition: none; }
+  html.flooding .flood { height: 16vh; }
+  .gulls, .confetti { display: none; }
+  .boat { transition: none; }
+}
+
+@media (max-width: 960px) {
+  .voyage { grid-template-columns: 1fr; }
+  .gauge-panel { position: static; }
+}
+@media (max-width: 640px) {
+  .course { --label-w: 0px; }
+  .lane { grid-template-columns: 1fr; min-height: 0; gap: .2rem; }
+  .lane-label { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+  .water { height: 64px; }
+  .lanes { gap: 1rem; }
+  .boat { --boat-w: 78px; }
+  .acc { font-size: .78rem; bottom: 26px; }
+  .ticket { grid-template-columns: 1fr; rotate: 0deg; }
+  .ticket-main { border-radius: 12px 12px 0 0; border: 1px solid #b69c62; border-bottom: 0; padding: 1.1rem 1rem; }
+  .ticket-main::after { top: auto; bottom: -1px; left: 8px; right: 8px; width: auto; height: 2px; background: radial-gradient(circle, #6b5530 1.2px, transparent 1.6px) 0 0 / 9px 2px repeat-x; }
+  .ticket-stub { border-radius: 0 0 12px 12px; border: 1px solid #b69c62; border-top: 0; grid-template-columns: auto auto auto; -webkit-mask: none; mask: none; }
+  .ticket-stub .small { display: none; }
+  .stub-class { font-size: 2.2rem; }
+  .fields { grid-template-columns: 1fr; }
+  .stamps span { min-width: 78px; }
+  .telegram-pop { bottom: 64px; right: 16px; }
+}

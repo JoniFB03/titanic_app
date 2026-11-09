@@ -1,0 +1,138 @@
+/* ===================== HOME — cinematic boarding screen ===================== */
+
+.boarding {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--horizon) + 3vh) 16px clamp(4.5rem, 8vh, 5rem);
+  overflow: hidden;
+}
+
+/* poster sunburst behind the title, like a 1912 White Star bill */
+.rays {
+  position: absolute;
+  left: 50%; top: calc(var(--horizon) - 4px);
+  width: 260vmax; height: 260vmax;
+  translate: -50% -50%;
+  background: repeating-conic-gradient(from 0deg, rgba(240, 207, 116, .07) 0deg 4deg, transparent 4deg 12deg);
+  mask: radial-gradient(circle, #000 0%, transparent 38%);
+  animation: rays-turn 140s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 4s ease 2s;
+}
+.ready .rays { opacity: 1; }
+@keyframes rays-turn { to { rotate: 360deg; } }
+
+.marquee { position: absolute; z-index: 4; left: 0; right: 0; top: clamp(4.4rem, 10vh, 7rem); text-align: center; padding: 0 16px; }
+
+.title {
+  margin: .15em 0 .1em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.1rem, 13vw, 8.6rem);
+  line-height: .95;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.letter {
+  display: inline-block;
+  background: linear-gradient(180deg, #fffaf0 0%, #f6dc8f 38%, #c99a3c 62%, #8a5d1d 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .7)) drop-shadow(0 0 22px rgba(246, 220, 143, .35));
+  opacity: 0;
+  translate: 0 -.35em;
+  scale: 1.8;
+  animation: letter-in .9s var(--ease-spring) forwards, letter-glint 7s ease-in-out infinite;
+  animation-delay: calc(1.1s + var(--n) * .2s), calc(4s + var(--n) * .12s);
+}
+@keyframes letter-in {
+  0% { opacity: 0; translate: 0 -.35em; scale: 1.8; filter: blur(12px) drop-shadow(0 0 0 transparent); }
+  60% { opacity: 1; filter: blur(0) drop-shadow(0 0 40px rgba(255, 240, 190, .9)); }
+  100% { opacity: 1; translate: 0 0; scale: 1; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .7)) drop-shadow(0 0 22px rgba(246, 220, 143, .35)); }
+}
+@keyframes letter-glint { 0%, 88%, 100% { translate: 0 0; } 92% { translate: 0 -.05em; } }
+
+.route { font-style: italic; font-size: clamp(1rem, 2.6vw, 1.35rem); color: var(--muted); margin: 0; }
+
+.reveal { opacity: 0; translate: 0 14px; animation: reveal 1.2s var(--ease-sea) forwards; animation-delay: var(--at, 0s); }
+@keyframes reveal { to { opacity: 1; translate: 0 0; } }
+
+/* the ship, emerging from the fog onto the horizon */
+.hero-ship {
+  --w: min(860px, 94vw);
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: calc(var(--horizon) - var(--w) * 0.293 * 0.943);
+  width: var(--w);
+  translate: -50% 0;
+  cursor: pointer;
+  opacity: 0;
+  filter: blur(12px) brightness(.35) saturate(.2);
+  scale: .78;
+  animation: emerge 5.2s cubic-bezier(.2, .6, .2, 1) .3s forwards, hero-bob 7s ease-in-out 5.5s infinite;
+  transform-origin: 50% 95%;
+}
+@keyframes emerge {
+  0% { opacity: 0; filter: blur(12px) brightness(.35) saturate(.2); scale: .78; translate: -58% 0; }
+  45% { opacity: .85; }
+  100% { opacity: 1; filter: blur(0) brightness(1) saturate(1) drop-shadow(0 0 30px rgba(255, 217, 138, .18)); scale: 1; translate: -50% 0; }
+}
+@keyframes hero-bob { 0%, 100% { rotate: -.35deg; } 50% { rotate: .35deg; } }
+.hero-ship .ship .puff { animation-duration: 3.6s; }
+.hero-ship.blast .ship .puff { animation-duration: 1.2s; fill: #f4f4f4; }
+.hero-ship .funnel { transition: filter .2s; }
+.hero-ship .funnel:hover, .hero-ship .funnel-top:hover { filter: brightness(1.25); }
+.wake {
+  position: absolute; left: 6%; right: 2%; top: 94%;
+  height: 34px;
+  background: radial-gradient(60% 100% at 55% 0%, rgba(255, 217, 138, .22), transparent 70%);
+  filter: blur(3px);
+}
+
+/* banks of North Atlantic fog that roll away */
+.fog { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.bank {
+  position: absolute;
+  width: 90vw; height: 46vh;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(210, 222, 236, .55), rgba(170, 190, 210, .18) 60%, transparent);
+  filter: blur(26px);
+  animation: fog-roll 7s cubic-bezier(.5, 0, .3, 1) forwards, fog-drift 40s ease-in-out 7s infinite alternate;
+}
+.b1 { left: -20vw; top: 34vh; }
+.b2 { right: -24vw; top: 42vh; animation-delay: .3s, 7s; }
+.b3 { left: 10vw; top: 52vh; width: 80vw; animation-delay: .6s, 7s; }
+.b4 { left: 30vw; top: 22vh; width: 60vw; height: 30vh; animation-delay: .1s, 7s; }
+@keyframes fog-roll { 0% { opacity: 1; translate: 0 0; } 100% { opacity: .16; translate: var(--fx, -18vw) 4vh; } }
+.b2 { --fx: 22vw; } .b4 { --fx: 12vw; }
+@keyframes fog-drift { from { translate: var(--fx, -18vw) 4vh; } to { translate: calc(var(--fx, -18vw) * .6) 2vh; } }
+
+/* the boarding panel floating on the sea */
+.gangway {
+  position: relative;
+  z-index: 6;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  text-align: center;
+}
+.lede { font-size: clamp(1.05rem, 2.4vw, 1.25rem); }
+.lede strong { color: var(--brass-hi); font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 1rem 1.4rem; justify-content: center; margin: 1.2rem 0 1rem; }
+.cta .btn { font-size: clamp(.95rem, 2.4vw, 1.12rem); padding: .85em 1.6em; }
+.whisper { font-size: .92rem; color: var(--muted); margin: 0; }
+kbd { padding: .05em .45em; border: 1px solid rgba(243, 217, 142, .5); border-radius: 4px; background: rgba(0, 0, 0, .35); color: var(--brass-hi); font-size: .9em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .letter, .reveal, .hero-ship { opacity: 1 !important; translate: 0 0 !important; scale: 1 !important; filter: none !important; }
+  .hero-ship { translate: -50% 0 !important; }
+  .bank { opacity: .16; }
+  .rays { animation: none; opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  .marquee { top: 5rem; }
+  .title { letter-spacing: .04em; }
+  .cta .btn { width: 100%; }
+}

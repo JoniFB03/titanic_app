@@ -1,0 +1,86 @@
+{#- Reusable SVG pieces. Drawn by hand: black hull, white superstructure, buff funnels with black tops,
+    red waterline, lit portholes, Marconi antenna between the masts. -#}
+
+{% macro ship(cls="", smoke=True, lights=True, label="RMS Titanic", flag="#a3262a") -%}
+<svg class="ship {{ cls }}" viewBox="0 -40 600 175" role="img" aria-label="{{ label }}" preserveAspectRatio="xMidYMax meet">
+  {% if smoke %}
+  <g class="smoke" aria-hidden="true" filter="url(#smoke-blur)">
+    <defs><filter id="smoke-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5"/></filter></defs>
+    {% for x in [215, 285, 355, 425] %}
+      {% for k in range(4) %}
+      <circle class="puff" cx="{{ x - 7 }}" cy="-4" r="9"
+              style="--d: {{ (loop.index0 * 1.1 + (x % 7) * 0.13) | round(2) }}s"></circle>
+      {% endfor %}
+    {% endfor %}
+  </g>
+  {% endif %}
+  {# masts + wireless antenna #}
+  <g class="rigging" stroke="#2b2b2b" stroke-width="2" stroke-linecap="round">
+    <line x1="120" y1="66" x2="114" y2="-6"></line>
+    <line x1="520" y1="58" x2="514" y2="-10"></line>
+    <line class="antenna" x1="114" y1="-4" x2="514" y2="-8" stroke-width="0.9"></line>
+    <line x1="514" y1="-8" x2="590" y2="58" stroke-width="0.7"></line>
+    <line x1="114" y1="-4" x2="30" y2="66" stroke-width="0.7"></line>
+  </g>
+  {# funnels: buff with black tops, raked aft #}
+  {% for x in [215, 285, 355, 425] %}
+  <polygon class="funnel" points="{{ x-12 }},58 {{ x+12 }},58 {{ x+5 }},-2 {{ x-19 }},-2" fill="#d8a23a"></polygon>
+  <polygon class="funnel-top" points="{{ x-17.6 }},9 {{ x+6.4 }},9 {{ x+5 }},-2 {{ x-19 }},-2" fill="#111"></polygon>
+  {% endfor %}
+  {# superstructure #}
+  <rect x="150" y="50" width="330" height="18" fill="#f4efe6"></rect>
+  <rect x="178" y="40" width="282" height="11" fill="#ece5d6"></rect>
+  <rect x="455" y="34" width="30" height="17" fill="#f4efe6"></rect>
+  <line x1="156" y1="58" x2="474" y2="58" stroke="#3b3b3b" stroke-width="3" stroke-dasharray="5 4"></line>
+  {% for bx in [190, 222, 254, 382, 414, 446] %}
+  <rect x="{{ bx }}" y="35" width="20" height="5" rx="2" fill="#fbf8f1" stroke="#9a9182" stroke-width=".6"></rect>
+  {% endfor %}
+  {# hull #}
+  <path class="hull" d="M28,66 L590,58 L568,120 L62,120 Q36,112 28,66 Z" fill="#0d0d0f"></path>
+  <path d="M30,71 L587,63" stroke="#c9a227" stroke-width="1.6"></path>
+  <path class="waterline" d="M62,120 L568,120 L564,131 L70,131 Z" fill="{{ flag }}"></path>
+  {% if lights %}
+  <g class="portholes" stroke="#ffd98a" stroke-linecap="round">
+    <line x1="62" y1="84" x2="566" y2="78" stroke-width="2.4" stroke-dasharray="0.1 9"></line>
+    <line x1="70" y1="98" x2="560" y2="93" stroke-width="2.4" stroke-dasharray="0.1 11"></line>
+    <line x1="160" y1="45" x2="455" y2="45" stroke-width="2" stroke-dasharray="0.1 7"></line>
+  </g>
+  {% endif %}
+</svg>
+{%- endmacro %}
+
+{% macro iceberg(cls="") -%}
+<svg class="iceberg {{ cls }}" viewBox="0 0 220 140" aria-hidden="true">
+  <defs>
+    <linearGradient id="ice-{{ cls or 'g' }}" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f4fbff"></stop>
+      <stop offset=".55" stop-color="#bfe0ee"></stop>
+      <stop offset="1" stop-color="#6fa3bd"></stop>
+    </linearGradient>
+  </defs>
+  <path d="M0,140 L28,92 L52,100 L80,38 L98,52 L118,12 L140,60 L160,48 L188,104 L220,140 Z" fill="url(#ice-{{ cls or 'g' }})"></path>
+  <path d="M118,12 L128,70 L108,140 L90,140 L104,70 Z" fill="#ffffff" opacity=".5"></path>
+</svg>
+{%- endmacro %}
+
+{% macro wheel_icon() -%}
+<svg viewBox="-60 -60 120 120" aria-hidden="true" class="wheel-svg">
+  {% for a in range(0, 360, 45) %}
+  <g transform="rotate({{ a }})">
+    <rect x="-3.5" y="-58" width="7" height="22" rx="3.5" fill="url(#brass-g)"></rect>
+    <rect x="-2" y="-40" width="4" height="30" fill="#7a4f1d"></rect>
+  </g>
+  {% endfor %}
+  <defs>
+    <radialGradient id="brass-g" cx=".35" cy=".3" r=".9">
+      <stop offset="0" stop-color="#ffe9a8"></stop>
+      <stop offset=".45" stop-color="#c99a3c"></stop>
+      <stop offset="1" stop-color="#6b4513"></stop>
+    </radialGradient>
+  </defs>
+  <circle r="36" fill="none" stroke="#5a3712" stroke-width="10"></circle>
+  <circle r="36" fill="none" stroke="url(#brass-g)" stroke-width="6"></circle>
+  <circle r="13" fill="url(#brass-g)" stroke="#5a3712" stroke-width="2"></circle>
+  <circle r="4" fill="#3a230b"></circle>
+</svg>
+{%- endmacro %}

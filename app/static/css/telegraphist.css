@@ -1,0 +1,162 @@
+/* ===================== THE TELEGRAPHIST ===================== */
+
+.wireless {
+  display: grid;
+  grid-template-columns: minmax(230px, 300px) minmax(0, 860px);
+  justify-content: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: 0 16px 6rem;
+  align-items: start;
+}
+
+/* ---------------- the apparatus */
+.apparatus { position: sticky; top: 96px; display: grid; gap: 1rem; text-align: center; }
+.key { width: 100%; max-width: 240px; margin: 0 auto; overflow: visible; }
+.key .lever { transform-origin: 40px 62px; transition: transform 60ms; }
+.key .spark { opacity: 0; transition: opacity 60ms; filter: drop-shadow(0 0 6px #bfe6ff); }
+.key.down .lever { transform: rotate(4deg); }
+.key.down .spark { opacity: 1; }
+
+.lamp { display: inline-flex; align-items: center; justify-content: center; gap: .6em; font-family: var(--font-nouveau); letter-spacing: .1em; text-transform: uppercase; font-size: .85rem; }
+.bulb { width: 16px; height: 16px; border-radius: 50%; background: #776; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, .5); }
+.lamp[data-state="online"] .bulb { background: #5df29a; box-shadow: 0 0 12px #5df29a, inset 0 -2px 3px rgba(0, 0, 0, .3); }
+.lamp[data-state="cut"] .bulb { background: #ff5a4a; box-shadow: 0 0 14px #ff5a4a; animation: blink 1s steps(2) infinite; }
+.lamp[data-state="checking"] .bulb { background: #f5c542; animation: blink .6s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.apparatus-note { font-size: .95rem; color: var(--muted); margin: 0; }
+.apparatus-note code { color: var(--brass-hi); font-size: .85em; }
+.new-roll { justify-self: center; }
+
+/* ---------------- the desk & log */
+.desk { display: grid; gap: 1.1rem; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1rem; min-height: 240px; max-height: min(62vh, 760px); overflow-y: auto; scroll-behavior: smooth; padding-right: 4px; }
+.log:empty::before {
+  content: "THE KEY IS SILENT STOP ASK HAROLD ANYTHING ABOUT THE 891 PASSENGERS STOP";
+  display: grid; place-items: center; min-height: 220px;
+  font-family: var(--font-mono); color: var(--muted); text-align: center; padding: 1rem; letter-spacing: .08em;
+}
+
+.telegram {
+  position: relative;
+  padding: 1rem 1.2rem 1.1rem;
+  border-radius: 3px;
+  color: var(--ink);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .45);
+  animation: slip-in .6s var(--ease-spring) both;
+}
+@keyframes slip-in { from { opacity: 0; translate: 0 18px; rotate: -1.5deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+.telegram.incoming {
+  background:
+    linear-gradient(90deg, rgba(120, 80, 30, .08) 1px, transparent 1px) 0 0 / 22px 100%,
+    linear-gradient(180deg, #f6edd6, #ecdcb5);
+  margin-right: clamp(0px, 6vw, 60px);
+  rotate: -.4deg;
+}
+.telegram.outgoing {
+  background: linear-gradient(180deg, #e4ecf3, #c9d7e4);
+  margin-left: clamp(0px, 8vw, 90px);
+  rotate: .5deg;
+}
+.slip-head {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .3rem 1rem;
+  padding-bottom: .5rem; margin-bottom: .6rem;
+  border-bottom: 2px double rgba(42, 33, 24, .45);
+  font-family: var(--font-nouveau); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+}
+.company { color: #6a2a14; }
+.stamp { color: #5a4a36; }
+.slip-body {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2.2vw, 1.12rem);
+  line-height: 1.6;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.outgoing .slip-body { font-family: var(--font-serif); font-style: italic; text-transform: none; font-size: 1.15rem; letter-spacing: 0; }
+.slip-body .stop { color: #a3262a; font-weight: bold; }
+.caret::after { content: "▌"; animation: blink .7s steps(2) infinite; color: #6a2a14; }
+
+/* rubber stamps */
+.telegram:has(.rubber) { padding-bottom: 2.6rem; }
+.telegram .rubber {
+  position: absolute; right: 14px; bottom: 10px;
+  padding: .15em .6em;
+  border: 3px double currentColor;
+  border-radius: 6px;
+  font-family: var(--font-nouveau); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+  rotate: -9deg; opacity: .8;
+  pointer-events: none;
+}
+.telegram.cut .rubber { color: #b0201a; }
+.telegram.bridge .rubber { color: #1f4e9b; }
+.telegram.verified .rubber { color: #1d7a5a; }
+.telegram.corrected .rubber { color: #a36a12; }
+
+/* ---------------- the ticker tape (the pandas that ran) */
+.tapes { display: grid; gap: .5rem; margin-bottom: .7rem; }
+.tapes:empty { display: none; }
+.tape {
+  position: relative;
+  margin: 0;
+  padding: 14px 12px 8px;
+  background:
+    radial-gradient(circle, rgba(42, 33, 24, .55) 2px, transparent 2.5px) 6px 3px / 12px 10px repeat-x,
+    linear-gradient(180deg, #fffaf0, #f4e8c8);
+  border: 1px solid #c8b383;
+  box-shadow: inset 0 -6px 10px rgba(120, 90, 40, .12);
+  border-radius: 2px;
+  rotate: .3deg;
+}
+.tape::before { content: "PANDAS TAPE"; position: absolute; right: 8px; top: 1px; font: .6rem/1 var(--font-nouveau); letter-spacing: .2em; color: #8a6a3a; }
+.tape pre { margin: 0; font-family: var(--font-mono); white-space: pre; overflow-x: auto; scrollbar-width: thin; }
+.tape-code { color: #1f3b66; font-size: .95rem; }
+.tape-code::before { content: ">>> "; color: #8a6a3a; }
+.tape-result { color: #3a2e20; font-size: .85rem; margin-top: .3rem !important; padding-top: .3rem; border-top: 1px dashed rgba(42, 33, 24, .3); max-height: 9.5em; overflow-y: auto; }
+.tape-result::before { content: "⟶ "; color: #1d7a5a; }
+.tape.error .tape-result { color: #a3262a; }
+.tape.error .tape-result::before { content: "✗ "; color: #a3262a; }
+
+.receiving { font-family: var(--font-mono); letter-spacing: .3em; color: #6a2a14; }
+.receiving span { display: inline-block; animation: dit 1.2s infinite; }
+.receiving span:nth-child(2) { animation-delay: .15s; } .receiving span:nth-child(3) { animation-delay: .3s; }
+@keyframes dit { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* ---------------- compose */
+.suggestions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.suggestion { font-size: .95rem; min-height: 42px; padding: .45em 1em; }
+.compose { display: flex; gap: .8rem; align-items: stretch; }
+.form-strip {
+  flex: 1; display: grid;
+  background: linear-gradient(180deg, #f6edd6, #ecdcb5);
+  border-radius: 3px;
+  padding: .45rem .8rem .3rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .25);
+}
+.form-label { font: .66rem/1 var(--font-nouveau); letter-spacing: .2em; color: #6a2a14; }
+.compose textarea {
+  width: 100%; resize: vertical; min-height: 2.6em;
+  border: 0; background: transparent; color: var(--ink);
+  font-family: var(--font-mono); font-size: 1.05rem; line-height: 1.4;
+}
+.compose textarea:focus { outline: none; }
+.form-strip:focus-within { outline: 3px solid var(--brass-hi); outline-offset: 2px; }
+.compose textarea::placeholder { color: #8f7d5f; }
+.send { align-self: center; }
+
+@media (max-width: 860px) {
+  .wireless { grid-template-columns: 1fr; }
+  .apparatus { position: static; grid-template-columns: 110px 1fr; text-align: left; align-items: center; gap: .4rem 1rem; }
+  .apparatus .key { grid-row: span 2; }
+  .apparatus-note, .new-roll { grid-column: 1 / -1; }
+  .new-roll { justify-self: start; }
+  .log { max-height: none; }
+}
+@media (max-width: 520px) {
+  .compose { flex-direction: column; }
+  .send { align-self: stretch; }
+  .telegram.incoming, .telegram.outgoing { margin-left: 0; margin-right: 0; }
+  .telegram .rubber { position: static; display: inline-block; margin-bottom: .4rem; }
+}

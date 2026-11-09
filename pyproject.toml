@@ -1,20 +1,38 @@
 [project]
 name = "titanic-app"
 version = "0.1.0"
-description = "Add your description here"
+description = "An absurd, epic, magnificent Titanic web experience: an LLM telegraphist and a survival-model bridge."
 readme = "README.md"
 authors = [
     { name = "Vullkano", email = "diogofritas45@gmail.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "joblib>=1.6.0",
     "pandas>=3.1.1",
     "scikit-learn>=1.9.1",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
-titanic-app = "titanic_app:main"
+titanic-app = "app.main:run"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "app"
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=9.2.0",
+]

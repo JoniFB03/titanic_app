@@ -1,0 +1,65 @@
+{% from "_macros.html" import ship, iceberg, wheel_icon %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Titanic{% endblock %} · White Star Line</title>
+  <meta name="description" content="{% block description %}An absurd, epic, magnificent Titanic experience.{% endblock %}">
+  <meta name="theme-color" content="#071325">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23071325'/%3E%3Cpath d='M3 20h26l-3 6H7z' fill='%230d0d0f' stroke='%23c9a227'/%3E%3Cpath d='M9 20V9h4v11M15 20V9h4v11' fill='%23d8a23a'/%3E%3Cpath d='M9 9h4v3H9zM15 9h4v3h-4z' fill='%23111'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Federo&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <script>/* paint the arriving wave before first frame */try{if(sessionStorage.getItem("titanic.wave"))document.documentElement.classList.add("arriving")}catch(e){}</script>
+  {% block head %}{% endblock %}
+</head>
+<body data-page="{{ page }}">
+  <a class="skip" href="#main">Skip to content</a>
+
+  {# ---------- the living background: sky, aurora, stars, ocean, horizon ship, iceberg ---------- #}
+  <div class="world" aria-hidden="true">
+    <canvas id="sky"></canvas>
+    <div class="horizon-ship">{{ ship("ship-horizon", label="") }}</div>
+    <div class="iceberg-peek">{{ iceberg("peek") }}</div>
+    <canvas id="sea"></canvas>
+  </div>
+  <canvas id="foam" aria-hidden="true"></canvas>
+
+  {# ---------- ship's wheel menu ---------- #}
+  <nav class="helm" aria-label="Ship's wheel">
+    <button class="wheel" type="button" aria-expanded="false" aria-controls="helm-menu" title="Ship's wheel — navigate">
+      {{ wheel_icon() }}
+      <span class="sr-only">Open navigation</span>
+    </button>
+    <ul id="helm-menu" class="helm-menu">
+      <li style="--i:0"><a href="/" data-wave {% if page == 'home' %}aria-current="page"{% endif %}><span class="helm-ico">⚓</span>Boarding</a></li>
+      <li style="--i:1"><a href="/telegraphist" data-wave {% if page == 'telegraphist' %}aria-current="page"{% endif %}><span class="helm-ico">⚡</span>Telegraphist</a></li>
+      <li style="--i:2"><a href="/bridge" data-wave {% if page == 'bridge' %}aria-current="page"{% endif %}><span class="helm-ico">☸</span>The Bridge</a></li>
+    </ul>
+  </nav>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+  {# page overlays live outside <main>: a tilted <main> would trap position:fixed children #}
+  {% block overlays %}{% endblock %}
+
+  {# ---------- overlays ---------- #}
+  <div class="giant-wave" aria-hidden="true">
+    <svg viewBox="0 0 400 1000" preserveAspectRatio="none">
+      <path d="M400,0 L120,0 C40,90 150,170 70,260 C-10,350 120,430 40,520 C-30,610 110,690 30,780 C-20,850 90,930 60,1000 L400,1000 Z" fill="#0e2f55"></path>
+      <path d="M400,0 L170,0 C90,90 200,170 120,260 C40,350 170,430 90,520 C20,610 160,690 80,780 C30,850 140,930 110,1000 L400,1000 Z" fill="#164a7d"></path>
+      <path d="M120,0 C40,90 150,170 70,260 C-10,350 120,430 40,520 C-30,610 110,690 30,780 C-20,850 90,930 60,1000" fill="none" stroke="#e9f6ff" stroke-width="10" stroke-dasharray="2 18" stroke-linecap="round"></path>
+    </svg>
+  </div>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <button class="sound-toggle" type="button" aria-pressed="false" title="Steam whistle, Morse and waves (synthesised)">
+    <span aria-hidden="true">♪</span> <span class="label">Sound off</span>
+  </button>
+
+  <noscript><p class="noscript">This voyage needs JavaScript for its waves and wireless STOP</p></noscript>
+  <script src="/static/js/ambient.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

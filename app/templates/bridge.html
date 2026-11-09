@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% from "_macros.html" import ship %}
+{% block title %}The Bridge{% endblock %}
+{% block description %}Four models race a regatta. Buy a 1912 boarding ticket and read your survival odds on the brass gauge.{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/bridge.css">{% endblock %}
+
+{% set ship_colours = {"Logistic Regression": "#a3262a", "Random Forest": "#2f7d4f", "Gradient Boosting": "#b4782a", "Support Vector Machine": "#1d6a8a"} %}
+
+{% block content %}
+<header class="page-head">
+  <p class="kicker">Officer of the Watch · Survival Oracle</p>
+  <h1>The Bridge</h1>
+  <svg class="ornament" viewBox="0 0 320 18" aria-hidden="true"><path d="M0 9 H120 M200 9 H320 M140 9 c6-8 14-8 20 0 c6 8 14 8 20 0" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="160" cy="9" r="3" fill="currentColor"/></svg>
+  <p class="sub">Four ships race on 5-fold cross-validation. The fastest one steers your fate.</p>
+</header>
+
+{# ------------------------------------------------------------------ the regatta #}
+<section class="regatta glass" aria-labelledby="regatta-title"
+         data-results='{{ regatta.results | tojson }}' data-best="{{ regatta.best }}" data-baseline="{{ baseline }}">
+  <div class="section-head">
+    <h2 id="regatta-title">The Regatta</h2>
+    <p class="note">Each ship sails to its <strong>mean accuracy over 5 folds</strong>, after a grid search over its hyperparameters.
+      {{ regatta.n_samples }} passengers · trained {{ regatta.trained_at }}.</p>
+  </div>
+
+  <div class="course">
+    <div class="axis" aria-hidden="true"></div>
+    <ol class="lanes">
+      {% for r in regatta.results %}
+      <li class="lane{% if r.winner %} winner{% endif %}" data-acc="{{ r.accuracy }}" style="--i: {{ loop.index0 }}">
+        <div class="lane-label">
+          <span class="ship-name">{{ r.ship }}</span>
+          <span class="model-name">{{ r.name }}</span>
+        </div>
+        <div class="water">
+          <div class="boat" tabindex="0"
+               aria-label="{{ r.name }}: {{ '%.1f' % (r.accuracy * 100) }}% ± {{ '%.1f' % (r.std * 100) }}% cross-validated accuracy{% if r.winner %}, winner{% endif %}">
+            <svg class="crown" viewBox="0 0 64 44" aria-hidden="true">
+              <path d="M4 40 L8 12 L22 26 L32 4 L42 26 L56 12 L60 40 Z" fill="#f5c542" stroke="#7a4f1d" stroke-width="2.5" stroke-linejoin="round"/>
+              <circle cx="32" cy="4" r="4" fill="#e8735a" stroke="#7a4f1d" stroke-width="1.5"/>
+              <circle cx="8" cy="12" r="3.5" fill="#5ab4e6" stroke="#7a4f1d" stroke-width="1.5"/>
+              <circle cx="56" cy="12" r="3.5" fill="#5ab4e6" stroke="#7a4f1d" stroke-width="1.5"/>
+              <rect x="4" y="34" width="56" height="6" fill="#c99a3c"/>
+            </svg>
+            {{ ship("ship-boat", smoke=True, lights=False, label=r.ship, flag=ship_colours.get(r.name, "#a3262a")) }}
+            <span class="acc">{{ '%.1f' % (r.accuracy * 100) }}%</span>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+    <div class="finish" aria-hidden="true"></div>
+  </div>
+  <canvas class="fireworks" aria-hidden="true"></canvas>
+
+  <details class="logbook">
+    <summary>Ship's logbook: every fold, every hyperparameter</summary>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Ship</th><th scope="col">Model</th><th scope="col">CV accuracy</th><th scope="col">± std</th><th scope="col">Folds</th><th scope="col">Best hyperparameters</th><th scope="col">Grid</th></tr></thead>
+        <tbody>
+          {% for r in regatta.results %}
+          <tr{% if r.winner %} class="winner-row"{% endif %}>
+            <th scope="row">{% if r.winner %}👑 {% endif %}{{ r.ship }}</th>
+            <td>{{ r.name }}</td>
+            <td>{{ '%.2f' % (r.accuracy * 100) }}%</td>
+            <td>{{ '%.2f' % (r.std * 100) }}</td>
+            <td class="mono">{% for f in r.folds %}{{ '%.1f' % (f * 100) }}{% if not loop.last %} · {% endif %}{% endfor %}</td>
+            <td class="mono">{% for k, v in r.best_params.items() %}{{ k }}={{ v }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+            <td>{{ r.candidates }} × 5 fits</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">For scale: guessing "everyone perished" scores {{ '%.1f' % (baseline * 100) }}%. Features: class, sex, age, fare, family size, port and the title taken from the name.
+      Winner saved to <code>model.joblib</code>.</p>
+  </details>
+</section>
+
+{# ------------------------------------------------------------------ ticket + gauge #}
+<section class="voyage">
+  <form class="ticket" novalidate aria-labelledby="ticket-title">
+    <div class="ticket-main">
+      <header class="ticket-head">
+        <svg class="burgee" viewBox="0 0 60 30" aria-hidden="true"><path d="M0 0 L60 15 L0 30 Z" fill="#a3262a"/><path d="M14 9 l3 6 l6 1 l-5 4 l1 6 l-5-3 l-5 3 l1-6 l-5-4 l6-1 Z" fill="#fff" transform="translate(2 -2)"/></svg>
+        <div>
+          <p class="line">White Star Line</p>
+          <h2 id="ticket-title">R.M.S. “Titanic”</h2>
+          <p class="line small">Passenger ticket · Southampton to New York · No. <span class="ticket-no">1912-0000</span></p>
+        </div>
+      </header>
+
+      <div class="fields">
+        <label class="field wide">
+          <span>Passenger's name</span>
+          <input name="name" type="text" maxlength="80" placeholder="e.g. Ada Lovelace" autocomplete="name">
+        </label>
+
+        <label class="field">
+          <span>Title</span>
+          <select name="title">
+            {% for t in titles %}<option value="{{ t }}">{{ t }}{% if t in ['Mr','Mrs','Dr','Rev','Col','Capt','Mme','Mlle','Ms'] %}.{% endif %}</option>{% endfor %}
+          </select>
+        </label>
+
+        <fieldset class="field">
+          <legend>Sex</legend>
+          <div class="pills">
+            <label><input type="radio" name="sex" value="female"><span>Female</span></label>
+            <label><input type="radio" name="sex" value="male" checked><span>Male</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>Age: <output name="age_out">28</output> years</span>
+          <input name="age" type="range" min="0" max="80" step="1" value="28">
+        </label>
+
+        <fieldset class="field wide">
+          <legend>Class</legend>
+          <div class="stamps">
+            {% for c, label in [(1, "First"), (2, "Second"), (3, "Third")] %}
+            <label><input type="radio" name="pclass" value="{{ c }}" {% if c == 3 %}checked{% endif %} data-median="{{ median_fares[c] }}"><span><b>{{ c }}</b>{{ label }} class</span></label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>Fare (£) <small class="auto-tag">class median</small></span>
+          <input name="fare" type="number" min="0" max="600" step="0.01" value="{{ median_fares[3] }}" inputmode="decimal">
+        </label>
+
+        <label class="field">
+          <span>Family aboard</span>
+          <input name="family" type="number" min="0" max="10" step="1" value="0" inputmode="numeric">
+          <small>siblings, spouse, parents, children</small>
+        </label>
+
+        <fieldset class="field wide">
+          <legend>Port of embarkation</legend>
+          <div class="pills">
+            {% for code, port in ports.items() %}
+            <label><input type="radio" name="embarked" value="{{ code }}" {% if code == 'S' %}checked{% endif %}><span>{{ port }}</span></label>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </div>
+      <p class="form-error" role="alert" hidden></p>
+    </div>
+
+    <div class="ticket-stub">
+      <p class="stub-line">Admit one</p>
+      <p class="stub-class">3<sup>rd</sup></p>
+      <button class="btn board" type="submit">Board</button>
+      <p class="stub-line small">Not transferable</p>
+    </div>
+  </form>
+
+  <div class="gauge-panel glass" aria-labelledby="gauge-title">
+    <h2 id="gauge-title" class="sr-only">Survival probability gauge</h2>
+    <svg class="gauge" viewBox="-170 -170 340 220" role="img" aria-labelledby="gauge-desc">
+      <desc id="gauge-desc">Brass gauge from 0 to 100 percent survival probability.</desc>
+      <defs>
+        <radialGradient id="bezel" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#fff2c0"/><stop offset=".5" stop-color="#c49335"/><stop offset="1" stop-color="#5c3a10"/></radialGradient>
+        <radialGradient id="dial" cx=".5" cy=".35" r=".8"><stop offset="0" stop-color="#fbf4e2"/><stop offset="1" stop-color="#d9c79c"/></radialGradient>
+        <linearGradient id="glare" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      </defs>
+      <path d="M-164 0 A164 164 0 0 1 164 0 L164 30 Q164 38 156 38 L-156 38 Q-164 38 -164 30 Z" fill="url(#bezel)" stroke="#3a230b" stroke-width="2"/>
+      <path d="M-148 0 A148 148 0 0 1 148 0 L148 24 L-148 24 Z" fill="url(#dial)" stroke="#5c3a10" stroke-width="2"/>
+      {% for x in [-156, 156] %}<circle cx="{{ x }}" cy="30" r="3.5" fill="#6b4513"/>{% endfor %}
+      <g class="zones" fill="none" stroke-width="16"></g>
+      <g class="ticks"></g>
+      <text class="dial-label" x="0" y="-62" text-anchor="middle">SURVIVAL</text>
+      <text class="dial-maker" x="0" y="17" text-anchor="middle">HARLAND &amp; WOLFF · BELFAST</text>
+      <g class="needle-arm" transform="rotate(-90)">
+        <g class="needle">
+          <path d="M-5.5 10 L0 -126 L5.5 10 Z" fill="#1b1b1b"/>
+          <path d="M-2 8 L0 -120 L2 8 Z" fill="#a3262a"/>
+        </g>
+      </g>
+      <circle r="13" fill="url(#bezel)" stroke="#3a230b" stroke-width="2"/>
+      <circle r="4" fill="#3a230b"/>
+      <path d="M-140 0 A140 140 0 0 1 40 -134 Q-60 -80 -140 0 Z" fill="url(#glare)" pointer-events="none"/>
+    </svg>
+    <p class="readout" aria-live="polite"><span class="pct">--</span><span class="unit">%</span></p>
+    <p class="verdict" aria-live="polite">Fill in your ticket and press <b>Board</b>.</p>
+    <p class="model-used"></p>
+  </div>
+</section>
+
+{# ------------------------------------------------------------------ the chart #}
+<section class="chart-panel glass" aria-labelledby="chart-title">
+  <div class="section-head">
+    <h2 id="chart-title">You among the 891</h2>
+    <p class="note">Age against fare (log scale). Each mark is a real passenger: <span class="key-dot survived">●</span> survived, <span class="key-dot perished">✕</span> perished.
+      You are the golden star, linked to your 5 most similar passengers (nearest neighbours in the model's feature space).
+      Missing ages are drawn at the median for the passenger's title; £0 fares at £1.</p>
+  </div>
+  <div id="scatter" class="scatter" role="img" aria-label="Scatter plot of passengers' age against fare">
+    <p class="placeholder">Board the ship to take your place among the passengers.</p>
+  </div>
+  <ol class="neighbors" aria-label="Your 5 most similar passengers"></ol>
+</section>
+
+{% endblock %}
+
+{% block overlays %}
+{# ------------------------------------------------------------------ effects #}
+<aside class="telegram-pop" aria-live="polite" hidden>
+  <header><span>Wireless from Harold · MGY</span><button type="button" class="close" aria-label="Dismiss telegram">×</button></header>
+  <p class="pop-body"></p>
+  <a href="/telegraphist" data-wave class="pop-link">Answer in the wireless room →</a>
+</aside>
+<div class="flood" aria-hidden="true"><svg viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20 Q150 0 300 20 T600 20 T900 20 T1200 20 V40 H0 Z" fill="rgba(22,74,125,.92)"/></svg></div>
+<div class="gulls" aria-hidden="true"></div>
+<canvas class="confetti" aria-hidden="true"></canvas>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js" defer></script>
+<script src="/static/js/bridge.js" defer></script>
+{% endblock %}

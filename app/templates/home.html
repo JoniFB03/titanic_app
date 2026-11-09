@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import ship %}
+{% block title %}Boarding{% endblock %}
+{% block description %}RMS Titanic emerges from the fog. Board for the Telegraphist or take the Bridge.{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/home.css">{% endblock %}
+
+{% block content %}
+<section class="boarding" aria-labelledby="title">
+  <div class="rays" aria-hidden="true"></div>
+
+  <header class="marquee">
+    <p class="kicker reveal" style="--at: .6s">White Star Line · Royal Mail Steamer</p>
+    <h1 id="title" class="title" aria-label="Titanic">
+      {%- for ch in "TITANIC" -%}<span class="letter" aria-hidden="true" style="--n: {{ loop.index0 }}">{{ ch }}</span>{%- endfor -%}
+    </h1>
+    <p class="route reveal" style="--at: 3s">Southampton · Cherbourg · Queenstown <span aria-hidden="true">⟶</span> New York</p>
+  </header>
+
+  <div class="hero-ship" title="Click a funnel">
+    {{ ship("ship-hero") }}
+    <div class="wake" aria-hidden="true"></div>
+  </div>
+
+  <div class="fog" aria-hidden="true">
+    <span class="bank b1"></span><span class="bank b2"></span><span class="bank b3"></span><span class="bank b4"></span>
+  </div>
+
+  <div class="gangway glass arch reveal" style="--at: 3.6s">
+    <p class="kicker">Maiden voyage · 10 April 1912 · Pier 44</p>
+    <p class="lede">{{ souls }} souls on this manifest. Only <strong>{{ survivors }}</strong> came home.
+      Choose your deck, passenger.</p>
+    <div class="cta">
+      <a class="btn" href="/telegraphist" data-wave>
+        <span aria-hidden="true">⚡</span> Wire the Telegraphist
+      </a>
+      <a class="btn" href="/bridge" data-wave>
+        <span aria-hidden="true">☸</span> Take the Bridge
+      </a>
+    </div>
+    <p class="whisper">Psst: type <kbd>iceberg</kbd> anywhere. Or <kbd>sos</kbd>. Click a funnel for the whistle.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="/static/js/home.js"></script>{% endblock %}

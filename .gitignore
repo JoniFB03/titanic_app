@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# trained model (regenerated automatically on first start / `uv run python -m app.train`)
+model.joblib
