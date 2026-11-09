@@ -23,8 +23,15 @@ uv sync                       # install deps
 uv run titanic-app            # start the server on :8000 (app.main:run → uvicorn)
 uv run python -m app.train    # retrain the 4 models, save the winner to model.joblib (~10 s)
 uv run pytest                 # tests: offline, train a fast model into a temp dir
+uv run pytest tests/test_chat.py::test_number_guard -q   # a single test (or -k <expr>)
 uv add <package>              # add a dependency
+uv run capture.py             # 4 screenshots into screenshots/ (server must be running on :8000)
 ```
+
+There is no linter or formatter configured.
+
+Environment variables: `OLLAMA_URL`, `OLLAMA_MODEL` (default `qwen3.5:4b`), `TITANIC_MODEL_PATH`,
+`PORT`. `capture.py` also reads `TITANIC_URL`.
 
 On Windows a running `titanic-app.exe` locks the script, so `uv add` / `uv sync` fail until the server
 is stopped.
@@ -42,10 +49,14 @@ is stopped.
   - A failed check gets one correction round, then `exact_figures_telegram()`.
   - `OLLAMA_URL` / `OLLAMA_MODEL` are read at import time. Tests set `OLLAMA_URL` to a dead port in
     `tests/conftest.py` before importing the app.
+  - All Ollama traffic goes through `chat._ollama(messages, tools, think)`. Tests replace it with the
+    `FakeOllama` script in `tests/test_chat.py` (`monkeypatch.setattr(chat, "_ollama", fake)`) to drive
+    the tool loop deterministically. New guard cases go in the parametrised `test_number_guard`.
 - `app/model.py`:
   - `get_bundle()` loads `model.joblib` and trains it first if it's missing. Bundles are cached per path.
   - The bundle also stores the CV results that the regatta shows.
-  - `TITANIC_MODEL_PATH` overrides the path (tests use this).
+  - `TITANIC_MODEL_PATH` overrides the path. Tests train a tiny-grid bundle (`model.train(fast=True)`)
+    into a temp dir, so they never touch the real `model.joblib` (gitignored).
 - Fixed-position overlays (flood, confetti, gulls, joke popup) must go in `{% block overlays %}`, not
   inside `<main>`. The low-odds effect rotates `<main>`, which would trap fixed children.
 - Frontend:
@@ -56,6 +67,9 @@ is stopped.
 - Chat history (including jokes relayed from the Bridge) lives in `sessionStorage` under `titanic.chat`.
 - `AI in Code From Chatbot to Agent.html` (~1.6 MB) is unrelated reference material. Avoid reading it
   unless asked.
+- Presentation material is not app code: `SUMMARY.md`, `screenshots/` (from `capture.py`) and
+  `presentation/titanic-deck.html`, a ~1.3 MB self-contained deck with base64-embedded screenshots.
+  Don't read the deck whole. If figures in the app change (accuracy, test count), update these too.
 
 ## graphify
 
